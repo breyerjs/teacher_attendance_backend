@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from .models import School, Teacher, Attendance
 from django.http import JsonResponse
 from django.template import RequestContext, loader
+from django.utils import timezone
 
 """
 TODO:
@@ -34,6 +35,11 @@ def get_all_schools(request):
 
 def get_all_teachers_in_school(request):
     """
+    Requires:
+        {
+            "school_name": "Brandeis"
+        }
+
     Returns:
         {
             names: [list of teachers (f_name + " " + l_name)]
@@ -46,3 +52,36 @@ def get_all_teachers_in_school(request):
     response = ([teacher.f_name + " " + teacher.l_name
                 for teacher in Teacher.objects.filter(school=school)])
     return (JsonResponse(response))
+
+
+def submit_attendance(request):
+    """
+    Requires:
+        {
+            "f_name": "Jackson",
+            "l_name": "Breyer",
+            "school_name": "Brandeis",
+            "reporter": "Rachelle",
+            "present": false
+        }
+
+    Returns:
+        {
+            "submitted": true
+        }
+    """
+    teacher = Teacher.objects.get(f_name=request.get("f_name"),
+                                  l_name=request.get("l_name"),
+                                  school__name=request.get("school_name")
+                                  )
+
+    # create + save the new Attendance object
+    Attendance.objects.create(
+        date=timezone.now(),
+        present=request.get("present"),
+        teacher=teacher,
+        reporter=request.get("reporter")
+    )
+
+    # send the confirmed response
+    return JsonResponse({"submitted": True})
