@@ -4,11 +4,11 @@ from .models import School, Teacher, Attendance
 from django.http import JsonResponse
 from django.template import RequestContext, loader
 from django.utils import timezone
+from .mobile_tools import MobileTools
 
 """
 TODO:
-    1. Generate report for repot view.
-    2. Authentication for mobile requests
+    1. Generate report for report view.
 """
 
 
@@ -28,7 +28,11 @@ def get_all_schools(request):
             "schools": [list of school names]
         }
     """
-    # make this a json output
+    # check this is a mobile user
+    mt = MobileTools()
+    if not mt.is_mobile_user(request):
+        return
+
     response = {"schools": [school.name for school in School.objects.all()]}
     return (JsonResponse(response))
 
@@ -46,6 +50,11 @@ def get_all_teachers_in_school(request):
         }
 
     """
+    # check this is a mobile user
+    mt = MobileTools()
+    if not mt.is_mobile_user(request):
+        return
+
     school_name = request.get("name")
     school = School.objects.get(name=school_name)
     # make this a json output
@@ -70,18 +79,25 @@ def submit_attendance(request):
             "submitted": true
         }
     """
+    # check this is a mobile user
+    mt = MobileTools()
+    if not mt.is_mobile_user(request):
+        return
+
+    reporter = request.get("reporter")
     teacher = Teacher.objects.get(f_name=request.get("f_name"),
                                   l_name=request.get("l_name"),
                                   school__name=request.get("school_name")
                                   )
 
-    # create + save the new Attendance object
-    Attendance.objects.create(
-        date=timezone.now(),
-        present=request.get("present"),
-        teacher=teacher,
-        reporter=request.get("reporter")
-    )
+    # create + save the new Attendance object, if reporter hasn't reported today
+    if not mt.reporter_submitted_today(reporter, teacher):
+        Attendance.objects.create(
+            date=timezone.now(),
+            present=request.get("present"),
+            teacher=teacher,
+            reporter=reporter
+        )
 
     # send the confirmed response
     return JsonResponse({"submitted": True})

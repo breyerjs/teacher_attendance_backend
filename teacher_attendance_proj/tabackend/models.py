@@ -2,7 +2,7 @@ from django.db import models
 
 
 class School(models.Model):
-    # make this unique on name
+    # should be unique on name
     name = models.CharField(max_length=150)
     city = models.CharField(max_length=150)
 
@@ -11,6 +11,7 @@ class School(models.Model):
 
 
 class Teacher(models.Model):
+    # should be unique on (f_name, l_name, school)
     f_name = models.CharField(max_length=150)
     l_name = models.CharField(max_length=150)
     gender = models.CharField(max_length=1)
