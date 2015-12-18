@@ -11,26 +11,31 @@ TODO:
     1. Generate report for report view.
 """
 
-
+# ===================================================== #
 # WEB API
+
+
 def report(request):
     attendance = Attendance.objects.all()
     template = loader.get_template('tabackend/report.html')
     context = RequestContext(request, {'attendance': attendance})
     return HttpResponse(template.render(context))
 
-
+# ===================================================== #
 # MOBILE API
+
+
 def get_all_schools(request):
     """
     returns:
         {
-            "schools": [list of school names]
+            "schools": [list of school names],
+            "password":
         }
     """
     # check this is a mobile user
-    mt = MobileTools()
-    if not mt.is_mobile_user(request):
+    tools = MobileTools()
+    if not tools.is_mobile_user(request):
         return
 
     response = {"schools": [school.name for school in School.objects.all()]}
@@ -41,25 +46,34 @@ def get_all_teachers_in_school(request):
     """
     Requires:
         {
-            "school_name": "Brandeis"
+            "school_name": "Brandeis",
+            "password":
         }
 
     Returns:
         {
             names: [list of teachers (f_name + " " + l_name)]
+            genders[list of genders]
         }
 
     """
     # check this is a mobile user
-    mt = MobileTools()
-    if not mt.is_mobile_user(request):
+    tools = MobileTools()
+    if not tools.is_mobile_user(request):
         return
 
-    school_name = request.get("name")
+    school_name = request.get("school_name")
     school = School.objects.get(name=school_name)
-    # make this a json output
-    response = ([teacher.f_name + " " + teacher.l_name
-                for teacher in Teacher.objects.filter(school=school)])
+
+    names, genders = []
+    for teacher in Teacher.objects.filter(school=school):
+        names.append(teacher.f_name + " " + teacher.l_name)
+        genders.append(teacher.gender)
+
+    response = {
+        "names": names,
+        "genders": genders
+    }
     return (JsonResponse(response))
 
 
@@ -71,7 +85,8 @@ def submit_attendance(request):
             "l_name": "Breyer",
             "school_name": "Brandeis",
             "reporter": "Rachelle",
-            "present": false
+            "present": false,
+            "password":
         }
 
     Returns:
@@ -80,8 +95,8 @@ def submit_attendance(request):
         }
     """
     # check this is a mobile user
-    mt = MobileTools()
-    if not mt.is_mobile_user(request):
+    tools = MobileTools()
+    if not tools.is_mobile_user(request):
         return
 
     reporter = request.get("reporter")
@@ -91,7 +106,7 @@ def submit_attendance(request):
                                   )
 
     # create + save the new Attendance object, if reporter hasn't reported today
-    if not mt.reporter_submitted_today(reporter, teacher):
+    if not tools.reporter_submitted_today(reporter, teacher):
         Attendance.objects.create(
             date=timezone.now(),
             present=request.get("present"),
