@@ -2,6 +2,7 @@ from django.db import models
 
 
 class School(models.Model):
+    # make this unique on name
     name = models.CharField(max_length=150)
     city = models.CharField(max_length=150)
 
