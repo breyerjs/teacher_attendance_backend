@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from .models import School, Teacher, Attendance
 from django.http import JsonResponse
+from django.template import RequestContext, loader
 
 """
 TODO:
@@ -12,7 +13,10 @@ TODO:
 
 # WEB API
 def report(request):
-    return HttpResponse("Hello, world. You're at the Teacher Attendance Report page")
+    attendance = Attendance.objects.all()
+    template = loader.get_template('tabackend/report.html')
+    context = RequestContext(request, {'attendance': attendance})
+    return HttpResponse(template.render(context))
 
 
 # MOBILE API
