@@ -16,7 +16,20 @@ TODO:
 
 
 def report(request):
-    attendance = Attendance.objects.all()
+    """
+    TODO
+    Passes in:
+        all_schools{
+            "Brandeis": {
+                "Jackson Breyer": 45
+            }
+        }
+    ...where the main dict maps the school's name to an inner dict.
+        The inner dict maps each teacher name to the number of times
+        that teacher has been reported missing.
+    """
+    tools = MobileTools()
+    attendance = tools.get_all_teachers_num_times_missing()
     template = loader.get_template('tabackend/report.html')
     context = RequestContext(request, {'attendance': attendance})
     return HttpResponse(template.render(context))
@@ -67,7 +80,7 @@ def get_all_teachers_in_school(request):
 
     names, genders = []
     for teacher in Teacher.objects.filter(school=school):
-        names.append(teacher.f_name + " " + teacher.l_name)
+        names.append(teacher.get_full_name())
         genders.append(teacher.gender)
 
     response = {

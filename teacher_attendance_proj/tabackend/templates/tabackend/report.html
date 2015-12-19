@@ -1,0 +1,6 @@
+{% for school, school_dict in attendance.items %}
+    <p> {{ school }} </p>
+    {% for teacher, attendance in school_dict.items %}
+        <p>{{teacher}} : {{attendance}}</p>
+    {% endfor %}
+{% endfor %}

@@ -20,6 +20,9 @@ class Teacher(models.Model):
     def __str__(self):
         return self.f_name + " " + self.l_name
 
+    def get_full_name(self):
+        return self.f_name + " " + self.l_name
+
 
 class Attendance(models.Model):
     date = models.DateTimeField('date')
