@@ -22,6 +22,8 @@ class MobileTools:
 
     def get_all_teachers_num_times_missing(self):
         """
+        TODO: only one value per day
+
         returns:
         all_schools{
             "Brandeis": {
