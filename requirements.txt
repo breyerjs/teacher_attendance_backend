@@ -4,7 +4,6 @@ click==5.1
 django-filter==0.11.0
 djangorestframework==3.3.2
 gunicorn==19.3.0
-legofy==0.0.1
 nltk==3.0.0
 numpy==1.8.1
 pillow==3.0.0
