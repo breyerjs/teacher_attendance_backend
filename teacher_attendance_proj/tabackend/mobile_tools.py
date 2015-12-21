@@ -1,4 +1,4 @@
-from .models import Attendance, Teacher, School
+from tabackend.models import Attendance, Teacher, School
 from django.utils import timezone
 from datetime import timedelta
 

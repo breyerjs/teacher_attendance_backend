@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from .models import School, Teacher, Attendance
+from tabackend.models import School, Teacher, Attendance
 from django.http import JsonResponse
 from django.template import RequestContext, loader
 from django.utils import timezone
