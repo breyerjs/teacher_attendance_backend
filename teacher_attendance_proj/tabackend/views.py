@@ -106,7 +106,7 @@ def submit_attendance(request):
 
     Returns:
         {
-            "first_submsission_today": true
+            "first_submission_today": true
         }
     """
     # check this is a mobile user
@@ -128,14 +128,13 @@ def submit_attendance(request):
             teacher=teacher,
             phone_number=request.get("phone_number")
         )
-        return JsonResponse({"first_submsission_today": True})
+        return JsonResponse({"first_submission_today": True})
 
-    # TODO finish
     # if the teacher has already checked in today
     #   see mobile_tools for sanitation policy
     else:
-        pass
-        return JsonResponse({"first_submsission_today": False})
+        tools.deduplicate_entries(request)
+        return JsonResponse({"first_submission_today": False})
 
 
 def get_lat_long(request):
