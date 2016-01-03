@@ -40,10 +40,14 @@ def report(request):
 
 def get_all_schools(request):
     """
+    requires:
+        {
+            "password":
+        }
+
     returns:
         {
             "schools": [list of school names],
-            "password":
         }
     """
     # check this is a mobile user
@@ -65,8 +69,8 @@ def get_all_teachers_in_school(request):
 
     Returns:
         {
-            names: [list of teachers (f_name + " " + l_name)]
-            genders[list of genders]
+            # formatted: (f_name + " " + l_name)
+            names: [list of teachers]
         }
 
     """
@@ -78,14 +82,12 @@ def get_all_teachers_in_school(request):
     school_name = request.get("school_name")
     school = School.objects.get(name=school_name)
 
-    names, genders = []
+    names = []
     for teacher in Teacher.objects.filter(school=school):
         names.append(teacher.get_full_name())
-        genders.append(teacher.gender)
 
     response = {
         "names": names,
-        "genders": genders
     }
     return (JsonResponse(response))
 
@@ -97,8 +99,8 @@ def submit_attendance(request):
             "f_name": "Jackson",
             "l_name": "Breyer",
             "school_name": "Brandeis",
-            "reporter": "Rachelle",
-            "present": false,
+            "near_school": True,
+            "phone_number": 2025551234,
             "password":
         }
 
@@ -112,20 +114,118 @@ def submit_attendance(request):
     if not tools.is_mobile_user(request):
         return
 
-    reporter = request.get("reporter")
     teacher = Teacher.objects.get(f_name=request.get("f_name"),
                                   l_name=request.get("l_name"),
                                   school__name=request.get("school_name")
                                   )
 
     # create + save the new Attendance object, if reporter hasn't reported today
-    if not tools.reporter_submitted_today(reporter, teacher):
+
+    if not tools.teacher_submitted_today(teacher):
         Attendance.objects.create(
             date=timezone.now(),
-            present=request.get("present"),
+            near_school=request.get("near_school"),
             teacher=teacher,
-            reporter=reporter
+            phone_number=request.get("phone_number")
         )
+
+    # TODO finish
+    # if the teacher has already checked in today
+    #   see mobile_tools for sanitation policy
+    else:
+        pass
 
     # send the confirmed response
     return JsonResponse({"submitted": True})
+
+
+def get_lat_long(request):
+    """
+    requires:
+        {
+            password:
+            school_name: "Brandeis"
+        }
+
+    returns:
+        {
+            latitude: 38.933868
+            longitude: -77.177260
+        }
+
+    """
+
+    # check this is a mobile user
+    tools = MobileTools()
+    if not tools.is_mobile_user(request):
+        return
+
+    school = School.objects.get(name=request.get("school_name"))
+    return JsonResponse(
+        {
+            "latitude": school.latitude,
+            "longitude": school.longitude
+        })
+
+
+def password_correct(request):
+    """
+    requires:
+        {
+            # password is confirmation of mobile user; entered_password is the
+            # password the user actually entered.
+            password:
+            entered_password:
+            f_name: "Jackson",
+            l_name: "Breyer",
+            school_name: "Brandeis"
+        }
+
+    returns:
+        {
+            "password_correct": True
+        }
+    """
+    # check this is a mobile user
+    tools = MobileTools()
+    if not tools.is_mobile_user(request):
+        return
+
+    school = School.get(name=request.get("school_name"))
+    teacher = Teacher.filter(school=school,
+                             f_name=request.get("f_name"),
+                             l_name=request.get("l_name"))
+
+    match = request.get("entered_password") == teacher.password
+
+    return JsonResponse({"password_correct": match})
+
+
+def teacher_exists(request):
+    """
+    requires:
+        {
+            password:
+            "f_name": "Jackson",
+            "l_name": "Breyer",
+            "school_name": "Brandeis"
+        }
+
+    returns:
+        {
+            "teacher_exists": True
+        }
+
+    """
+    # check this is a mobile user
+    tools = MobileTools()
+    if not tools.is_mobile_user(request):
+        return
+
+    school = School.objects.get(name=request.get("school_name"))
+
+    exists = Teacher.objects.filter(f_name=request.get("f_name"),
+                                    l_name=request.get("l_name"),
+                                    school=school).exists()
+
+    return JsonResponse({"teacher_exists": exists})
