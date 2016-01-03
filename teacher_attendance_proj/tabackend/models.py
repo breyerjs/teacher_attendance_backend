@@ -6,6 +6,10 @@ class School(models.Model):
     name = models.CharField(max_length=150)
     city = models.CharField(max_length=150)
 
+    # for maps
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+
     def __str__(self):
         return self.name
 
@@ -14,8 +18,8 @@ class Teacher(models.Model):
     # should be unique on (f_name, l_name, school)
     f_name = models.CharField(max_length=150)
     l_name = models.CharField(max_length=150)
-    gender = models.CharField(max_length=1)
     school = models.ForeignKey(School, on_delete=models.CASCADE)
+    password = models.CharField(max_length=150)
 
     def __str__(self):
         return self.f_name + " " + self.l_name
@@ -26,15 +30,15 @@ class Teacher(models.Model):
 
 class Attendance(models.Model):
     date = models.DateTimeField('date')
-    present = models.BooleanField()
+    near_school = models.BooleanField()
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
-    reporter = models.CharField(max_length=200)
+    phone_number = models.IntegerField()
 
     def __str__(self):
-        if self.present:
-            here = "present"
+        if self.near_school:
+            here = "near school"
         else:
-            here = "missing"
+            here = "not near school"
 
-        return (str(self.date) + " " + self.teacher.l_name + " reported " +
-                here + " by " + self.reporter)
+        return (str(self.date) + " " + self.teacher.l_name + " was " +
+                here + ".")
