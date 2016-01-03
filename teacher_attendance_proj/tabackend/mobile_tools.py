@@ -61,5 +61,26 @@ def deduplicate_entries(request):
                                   school__name=request.get("school_name")
                                   )
 
-    # get Attendance for this teacher for the past day
-    # currently unifinished!
+    teachers_attendance = Attendance.objects.filter(teacher=teacher)
+
+    # should only be one
+    todays_attendance = [attendance for attendance in teachers_attendance
+                         if attendance.date() == timezone.now().date()]
+    if len(todays_attendance) > 0:
+        todays_attendance = todays_attendance[0]
+    # if we're here, something's wrong
+    else:
+        return
+
+    # if two conditions above: replace existing
+    if not todays_attendance.near_school and request.get("near_school"):
+        # delete current
+        Attendance.objects.get(todays_attendance.id).delete()
+        # save new
+        Attendance.objects.create(teacher=teacher,
+                                  date=timezone.now(),
+                                  near_school=request.get("near_school"),
+                                  phone_number=request.get("phone_number")
+                                  )
+    else:
+        return
