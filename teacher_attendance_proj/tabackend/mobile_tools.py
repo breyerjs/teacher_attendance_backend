@@ -1,12 +1,14 @@
 from tabackend.models import Attendance, Teacher, School
 from django.utils import timezone
 from datetime import timedelta
+import json
 
 
 class MobileTools:
 
     def is_mobile_user(self, request):
-        return request.get("password") == "stayinschool"
+        request_dict = json.loads(request.body)
+        return request_dict.get("password") == "stayinschool"
 
     def teacher_submitted_today(self, teacher):
         """
