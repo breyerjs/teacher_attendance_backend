@@ -7,7 +7,7 @@ import json
 class MobileTools:
 
     def is_mobile_user(self, request):
-        request_dict = json.loads(request.body)
+        request_dict = json.loads(request.body.encode('utf8'))
         return request_dict.get("password") == "stayinschool"
 
     def teacher_submitted_today(self, teacher):
