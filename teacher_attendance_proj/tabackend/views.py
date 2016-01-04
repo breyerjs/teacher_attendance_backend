@@ -38,7 +38,7 @@ def report(request):
 # MOBILE API
 
 
-def get_all_schools(request):
+def get_all_schools_and_teachers(request):
     """
     requires:
         {
@@ -47,7 +47,8 @@ def get_all_schools(request):
 
     returns:
         {
-            "schools": [list of school names],
+            "school": [list of teacher names],
+            ...
         }
     """
     # check this is a mobile user
@@ -55,40 +56,10 @@ def get_all_schools(request):
     if not tools.is_mobile_user(request):
         return
 
-    response = {"schools": [school.name for school in School.objects.all()]}
-    return (JsonResponse(response))
+    response = {school.name: [] for school in School.objects.all()}
+    for teacher in Teacher.objects.all():
+        response[teacher.school.name].append(teacher)
 
-
-def get_all_teachers_in_school(request):
-    """
-    Requires:
-        {
-            "school_name": "Brandeis",
-            "password":
-        }
-
-    Returns:
-        {
-            # formatted: (f_name + " " + l_name)
-            names: [list of teachers]
-        }
-
-    """
-    # check this is a mobile user
-    tools = MobileTools()
-    if not tools.is_mobile_user(request):
-        return
-
-    school_name = request.get("school_name")
-    school = School.objects.get(name=school_name)
-
-    names = []
-    for teacher in Teacher.objects.filter(school=school):
-        names.append(teacher.get_full_name())
-
-    response = {
-        "names": names,
-    }
     return (JsonResponse(response))
 
 
