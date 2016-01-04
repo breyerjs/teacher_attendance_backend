@@ -51,10 +51,10 @@ def get_all_schools_and_teachers(request):
             ...
         }
     """
-    # check this is a mobile user
-    tools = MobileTools()
-    if not tools.is_mobile_user(request):
-        return
+    # # check this is a mobile user
+    # tools = MobileTools()
+    # if not tools.is_mobile_user(request):
+    #     return
 
     response = {school.name: [] for school in School.objects.all()}
     for teacher in Teacher.objects.all():
