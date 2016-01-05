@@ -6,11 +6,6 @@ import json
 
 class MobileTools:
 
-    def is_mobile_user(self, request):
-        body_unicode = request.body.decode('utf-8')
-        request_dict = json.loads(body_unicode)
-        return request_dict.get("password") == "stayinschool"
-
     def teacher_submitted_today(self, teacher):
         """
         ie: did this teacher check in within the last 15 hours?

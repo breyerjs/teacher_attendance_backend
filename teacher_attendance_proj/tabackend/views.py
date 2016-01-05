@@ -77,18 +77,13 @@ def submit_attendance(request):
             "first_submission_today": true
         }
     """
-    # check this is a mobile user
-    tools = MobileTools()
-    if not tools.is_mobile_user(request):
-        return
-
     teacher = Teacher.objects.get(f_name=request.get("f_name"),
                                   l_name=request.get("l_name"),
                                   school__name=request.get("school_name")
                                   )
 
     # create + save the new Attendance object, if reporter hasn't reported today
-
+    tools = MobileTools()
     if not tools.teacher_submitted_today(teacher):
         Attendance.objects.create(
             date=timezone.now(),
@@ -120,12 +115,6 @@ def get_lat_long(request):
         }
 
     """
-
-    # check this is a mobile user
-    tools = MobileTools()
-    if not tools.is_mobile_user(request):
-        return
-
     school = School.objects.get(name=request.get("school_name"))
     return JsonResponse(
         {
@@ -152,11 +141,6 @@ def password_correct(request):
             "password_correct": True
         }
     """
-    # check this is a mobile user
-    tools = MobileTools()
-    if not tools.is_mobile_user(request):
-        return
-
     school = School.get(name=request.get("school_name"))
     teacher = Teacher.filter(school=school,
                              f_name=request.get("f_name"),
@@ -183,11 +167,6 @@ def teacher_exists(request):
         }
 
     """
-    # check this is a mobile user
-    tools = MobileTools()
-    if not tools.is_mobile_user(request):
-        return
-
     school = School.objects.get(name=request.get("school_name"))
 
     exists = Teacher.objects.filter(f_name=request.get("f_name"),
