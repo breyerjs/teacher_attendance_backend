@@ -52,7 +52,7 @@ def get_all_schools_and_teachers(request):
         }
     """
     # for testing only!!
-    return JsonResponse({"data": request.body})
+    return JsonResponse({"data": request})
 
     # check this is a mobile user
     tools = MobileTools()
