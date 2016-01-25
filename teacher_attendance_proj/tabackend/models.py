@@ -28,7 +28,7 @@ class Teacher(models.Model):
         return self.f_name + " " + self.l_name
 
 
-class Attendance(models.Model):
+class Attendance(models.Model): 
     date = models.DateTimeField('date')
     near_school = models.BooleanField()
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
