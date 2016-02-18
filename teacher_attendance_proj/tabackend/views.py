@@ -141,12 +141,12 @@ def password_correct(request):
             "password_correct": True
         }
     """
-    school = School.get(name=request.get("school_name"))
+    school = School.get(name=request.body["school_name"]
     teacher = Teacher.filter(school=school,
-                             f_name=request.get("f_name"),
-                             l_name=request.get("l_name"))
+                             f_name=request.body["f_name"],
+                             l_name=request.body["l_name"]
 
-    match = request.get("entered_password") == teacher.password
+    match = request.body["entered_password"] == teacher.password
 
     return JsonResponse({"password_correct": match})
 
