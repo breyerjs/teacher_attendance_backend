@@ -5,6 +5,8 @@ from django.http import JsonResponse
 from django.template import RequestContext, loader
 from django.utils import timezone
 from .mobile_tools import MobileTools
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 """
 TODO:
@@ -141,12 +143,17 @@ def password_correct(request):
             "password_correct": True
         }
     """
-    school = School.get(name=request.body["school_name"]
-    teacher = Teacher.filter(school=school,
-                             f_name=request.body["f_name"],
-                             l_name=request.body["l_name"]
 
-    match = request.body["entered_password"] == teacher.password
+
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+
+    school = School.objects.get(name=body["school_name"])
+    teacher = (Teacher.objects.get(school=school,
+                             f_name=body["f_name"],
+                             l_name=body["l_name"]))
+
+    match = body["entered_password"] == teacher.password
 
     return JsonResponse({"password_correct": match})
 
