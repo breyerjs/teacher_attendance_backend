@@ -1,7 +1,6 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from tabackend.models import School, Teacher, Attendance
-from django.http import JsonResponse
 from django.template import RequestContext, loader
 from django.utils import timezone
 from .mobile_tools import MobileTools
@@ -79,9 +78,13 @@ def submit_attendance(request):
             "first_submission_today": true
         }
     """
-    teacher = Teacher.objects.get(f_name=request.get("f_name"),
-                                  l_name=request.get("l_name"),
-                                  school__name=request.get("school_name")
+
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+
+    teacher = Teacher.objects.get(f_name=body.get("f_name"),
+                                  l_name=body.get("l_name"),
+                                  school__name=body.get("school_name")
                                   )
 
     # create + save the new Attendance object, if reporter hasn't reported today
@@ -89,9 +92,9 @@ def submit_attendance(request):
     if not tools.teacher_submitted_today(teacher):
         Attendance.objects.create(
             date=timezone.now(),
-            near_school=request.get("near_school"),
+            near_school=body.get("near_school"),
             teacher=teacher,
-            phone_number=request.get("phone_number")
+            phone_number=body.get("phone_number")
         )
         return JsonResponse({"first_submission_today": True})
 
@@ -143,8 +146,6 @@ def password_correct(request):
             "password_correct": True
         }
     """
-
-
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
 

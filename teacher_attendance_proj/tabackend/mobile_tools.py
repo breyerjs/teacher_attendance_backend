@@ -11,7 +11,7 @@ class MobileTools:
         ie: did this teacher check in within the last 15 hours?
         """
         yesterday = timezone.now() - timedelta(hours=15)
-        return (Attendance.filter(
+        return (Attendance.objects.filter(
                 teacher=teacher,
                 date__range=(yesterday, timezone.now())
                 ).exists())
