@@ -44,41 +44,48 @@ class MobileTools:
         return all_schools
 
 
-def deduplicate_entries(request):
-    """
-    requires a request with dict from submit_attendance
-    only saves if:
-        a) this has near_school=True
-        b) there is no near_school=True for this teacher
+    def deduplicate_entries(self, request):
+        """
+        requires a request with dict from submit_attendance
+        only saves if:
+            a) this has near_school=True
+            b) there is no near_school=True for this teacher
 
-    in that case, deletes the near_school=False entry
-    """
+        in that case, deletes the near_school=False entry
+        """
 
-    teacher = Teacher.objects.get(f_name=request.get("f_name"),
-                                  l_name=request.get("l_name"),
-                                  school__name=request.get("school_name")
-                                  )
+        body = self.get_request_body(request)
 
-    teachers_attendance = Attendance.objects.filter(teacher=teacher)
+        teacher = Teacher.objects.get(f_name=body.get("f_name"),
+                                      l_name=body.get("l_name"),
+                                      school__name=body.get("school_name")
+                                      )
 
-    # should only be one
-    todays_attendance = [attendance for attendance in teachers_attendance
-                         if attendance.date() == timezone.now().date()]
-    if len(todays_attendance) > 0:
-        todays_attendance = todays_attendance[0]
-    # if we're here, something's wrong
-    else:
-        return
+        teachers_attendance = Attendance.objects.filter(teacher=teacher)
 
-    # if two conditions above: replace existing
-    if not todays_attendance.near_school and request.get("near_school"):
-        # delete current
-        Attendance.objects.get(todays_attendance.id).delete()
-        # save new
-        Attendance.objects.create(teacher=teacher,
-                                  date=timezone.now(),
-                                  near_school=request.get("near_school"),
-                                  phone_number=request.get("phone_number")
-                                  )
-    else:
-        return
+        # should only be one here
+        # date.date() is [date field].[date method] 
+        todays_attendance = [attendance for attendance in teachers_attendance
+                             if attendance.date.date() == timezone.now().date()]
+        if len(todays_attendance) > 0:
+            todays_attendance = todays_attendance[0]
+        # if we're here, something's wrong
+        else:
+            return
+
+        # if two conditions above: replace existing
+        if not todays_attendance.near_school and body.get("near_school"):
+            # delete current
+            Attendance.objects.get(todays_attendance.id).delete()
+            # save new
+            Attendance.objects.create(teacher=teacher,
+                                      date=timezone.now(),
+                                      near_school=body.get("near_school"),
+                                      phone_number=body.get("phone_number")
+                                      )
+        else:
+            return
+
+    def get_request_body(self, request):
+        body_unicode = request.body.decode('utf-8')
+        return json.loads(body_unicode)

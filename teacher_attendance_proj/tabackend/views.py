@@ -78,9 +78,8 @@ def submit_attendance(request):
             "first_submission_today": true
         }
     """
-
-    body_unicode = request.body.decode('utf-8')
-    body = json.loads(body_unicode)
+    tools = MobileTools()
+    body = tools.get_request_body(request)
 
     teacher = Teacher.objects.get(f_name=body.get("f_name"),
                                   l_name=body.get("l_name"),
@@ -88,7 +87,6 @@ def submit_attendance(request):
                                   )
 
     # create + save the new Attendance object, if reporter hasn't reported today
-    tools = MobileTools()
     if not tools.teacher_submitted_today(teacher):
         Attendance.objects.create(
             date=timezone.now(),
@@ -146,8 +144,8 @@ def password_correct(request):
             "password_correct": True
         }
     """
-    body_unicode = request.body.decode('utf-8')
-    body = json.loads(body_unicode)
+    tools = MobileTools()
+    body = tools.get_request_body(request)
 
     school = School.objects.get(name=body["school_name"])
     teacher = (Teacher.objects.get(school=school,
