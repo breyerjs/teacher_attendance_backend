@@ -61,6 +61,7 @@ def get_all_schools_and_teachers(request):
     return (JsonResponse(response))
 
 
+@csrf_exempt
 def submit_attendance(request):
     """
     Requires:
@@ -126,6 +127,7 @@ def get_lat_long(request):
         })
 
 
+@csrf_exempt
 def password_correct(request):
     """
     requires:
