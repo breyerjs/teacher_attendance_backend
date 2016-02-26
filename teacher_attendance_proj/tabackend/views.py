@@ -76,7 +76,7 @@ def submit_attendance(request):
 
     Returns:
         {
-            "first_submission_today": true
+            "submission_successful": true
         }
     """
     tools = MobileTools()
@@ -95,13 +95,13 @@ def submit_attendance(request):
             teacher=teacher,
             phone_number=body.get("phone_number")
         )
-        return JsonResponse({"first_submission_today": True})
+        return JsonResponse({"submission_successful": True})
 
     # if the teacher has already checked in today
     #   see mobile_tools for sanitation policy
     else:
         tools.deduplicate_entries(request)
-        return JsonResponse({"first_submission_today": False})
+        return JsonResponse({"submission_successful": True})
 
 
 def get_lat_long(request):
