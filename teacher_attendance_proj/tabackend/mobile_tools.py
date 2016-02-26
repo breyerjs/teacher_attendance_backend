@@ -43,7 +43,6 @@ class MobileTools:
 
         return all_schools
 
-
     def deduplicate_entries(self, request):
         """
         requires a request with dict from submit_attendance

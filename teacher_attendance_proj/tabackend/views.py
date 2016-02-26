@@ -18,7 +18,7 @@ TODO:
 
 def report(request):
     """
-    TODO
+    TODO.
     Passes in:
         all_schools{
             "Brandeis": {
@@ -151,8 +151,8 @@ def password_correct(request):
 
     school = School.objects.get(name=body["school_name"])
     teacher = (Teacher.objects.get(school=school,
-                             f_name=body["f_name"],
-                             l_name=body["l_name"]))
+                                   f_name=body["f_name"],
+                                   l_name=body["l_name"]))
 
     match = body["entered_password"] == teacher.password
 

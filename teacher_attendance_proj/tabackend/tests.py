@@ -1,10 +1,10 @@
+
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory
 from tabackend.models import Teacher, School, Attendance
 import json
 from tabackend.views import password_correct, submit_attendance
 
-# Create your tests here.
 
 class TestSubmissions(TestCase):
 
@@ -39,8 +39,7 @@ class TestSubmissions(TestCase):
             "phone_number": 2025551234,
         }
 
-        body_json = json.dumps(body)
-        request = self.factory.post("/submit_attendance", data=body, format='json')        
+        request = self.factory.post("/submit_attendance", data=body, format='json')
         response = submit_attendance(request)
 
         body_unicode = response.content.decode('utf-8')
@@ -62,11 +61,10 @@ class TestSubmissions(TestCase):
             "phone_number": 2025551234,
         }
 
-        body_json = json.dumps(body)
-        request1 = self.factory.post("/submit_attendance", data=body, format='json')        
-        response1 = submit_attendance(request1)
+        request1 = self.factory.post("/submit_attendance", data=body, format='json')
+        submit_attendance(request1)
 
-        request2 = self.factory.post("/submit_attendance", data=body, format='json')        
+        request2 = self.factory.post("/submit_attendance", data=body, format='json')
         response2 = submit_attendance(request2)
 
         body_unicode = response2.content.decode('utf-8')
@@ -76,8 +74,4 @@ class TestSubmissions(TestCase):
         self.assertEqual(len(Attendance.objects.filter(teacher=self.teacher)), 1)
 
         # correct response
-        self.assertFalse(body.get("first_submission_today"))        
-
-
-
-
+        self.assertFalse(body.get("first_submission_today"))
