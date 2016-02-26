@@ -30,7 +30,7 @@ def report(request):
         that teacher has been reported missing.
     """
     tools = MobileTools()
-    attendance = tools.get_all_teachers_num_times_missing()
+    attendance = tools.get_all_teachers_num_times_present()
     template = loader.get_template('tabackend/report.html')
     context = RequestContext(request, {'attendance': attendance})
     return HttpResponse(template.render(context))

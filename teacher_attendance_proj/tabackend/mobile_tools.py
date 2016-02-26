@@ -43,6 +43,33 @@ class MobileTools:
 
         return all_schools
 
+    def get_all_teachers_num_times_present(self):
+        """
+        TODO: only one value per day
+
+        returns:
+        all_schools{
+            "Brandeis": {
+                "Jackson Breyer": 45
+            }
+        }
+        ...where the main dict maps the school's name to an inner dict.
+        The inner dict maps each teacher name to the number of times
+        that teacher has been reported missing.
+        """
+        # add all schools
+        all_schools = {school.name: {} for school in School.objects.all()}
+
+        # add all teachers to their appropriate school
+        for teacher in Teacher.objects.all():
+            all_schools[teacher.school.name][teacher.get_full_name()] = 0
+
+        # log absences for each teacher
+        for attendance in Attendance.objects.filter(near_school=True):
+            all_schools[attendance.teacher.school.name][attendance.teacher.get_full_name()] += 1
+
+        return all_schools
+
     def deduplicate_entries(self, request):
         """
         requires a request with dict from submit_attendance
