@@ -1,10 +1,9 @@
-from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from tabackend.models import School, Teacher, Attendance
 from django.template import RequestContext, loader
 from django.utils import timezone
 from .mobile_tools import MobileTools
-from django.views.decorators.csrf import csrf_exempt
+from .logic import Logic
 import json
 
 """
@@ -15,8 +14,28 @@ TODO:
 # ===================================================== #
 # WEB API
 
+"""
+Accepts:
+{'username': str,
+ 'password': str,
+ 'email': str (optional),
+ 'firstName': str,
+ 'lastName': str,
+ 'isSuperUser', bool}
 
-def report(request):
+ returns:
+ 204
+"""
+def create_user(request):
+    if request.method != 'POST':
+        return HttpResponse(status=405)
+    error = Logic().create_user(get_request_body(request))
+    if  error:
+        return HttpResponse(error, status=500)
+    else:
+        return HttpResponse(status=204)
+
+
     """
     TODO.
     Passes in:
@@ -29,6 +48,7 @@ def report(request):
         The inner dict maps each teacher name to the number of times
         that teacher has been reported missing.
     """
+def report(request):
     tools = MobileTools()
     attendance = tools.get_all_teachers_num_times_present()
     template = loader.get_template('tabackend/report.html')
@@ -38,21 +58,20 @@ def report(request):
 # ===================================================== #
 # MOBILE API
 
+def login(request):
+    if not Logic.credentials_valid(get_request_body(request)):
+        return HttpResponse(status=403)
+    return HttpResponse(status=204)
 
+
+"""
+returns:
+    {
+        "school": [list of teacher names],
+        ...
+    }
+"""
 def get_all_schools_and_teachers(request):
-    """
-    requires:
-        {
-            "password":
-        }
-
-    returns:
-        {
-            "school": [list of teacher names],
-            ...
-        }
-    """
-
     response = {school.name: [] for school in School.objects.all()}
     for teacher in Teacher.objects.all():
         name = teacher.f_name + " " + teacher.l_name
@@ -61,24 +80,24 @@ def get_all_schools_and_teachers(request):
     return (JsonResponse(response))
 
 
-@csrf_exempt
-def submit_attendance(request):
-    """
-    Requires:
-        {
-            "f_name": "Jackson",
-            "l_name": "Breyer",
-            "school_name": "Brandeis",
-            "near_school": True,
-            "phone_number": 2025551234,
-            "password":
-        }
+"""
+Requires:
+    {
+        "f_name": "Jackson",
+        "l_name": "Breyer",
+        "school_name": "Brandeis",
+        "near_school": True,
+        "phone_number": 2025551234,
+        "password":
+    }
 
-    Returns:
-        {
-            "submission_successful": true
-        }
-    """
+Returns:
+    {
+        "submission_successful": true
+    }
+"""
+def submit_attendance(request):
+
     tools = MobileTools()
     body = tools.get_request_body(request)
 
@@ -104,21 +123,21 @@ def submit_attendance(request):
         return JsonResponse({"submission_successful": True})
 
 
+"""
+requires:
+    {
+        password:
+        school_name: "Brandeis"
+    }
+
+returns:
+    {
+        latitude: 38.933868
+        longitude: -77.177260
+    }
+
+"""
 def get_lat_long(request):
-    """
-    requires:
-        {
-            password:
-            school_name: "Brandeis"
-        }
-
-    returns:
-        {
-            latitude: 38.933868
-            longitude: -77.177260
-        }
-
-    """
     school = School.objects.get(name=request.get("school_name"))
     return JsonResponse(
         {
@@ -126,59 +145,9 @@ def get_lat_long(request):
             "longitude": school.longitude
         })
 
+# ===================================================== #
+# HELPER METHODS
 
-@csrf_exempt
-def password_correct(request):
-    """
-    requires:
-        {
-            # password is confirmation of mobile user; entered_password is the
-            # password the user actually entered.
-            password:
-            entered_password:
-            f_name: "Jackson",
-            l_name: "Breyer",
-            school_name: "Brandeis"
-        }
-
-    returns:
-        {
-            "password_correct": True
-        }
-    """
-    tools = MobileTools()
-    body = tools.get_request_body(request)
-
-    school = School.objects.get(name=body["school_name"])
-    teacher = (Teacher.objects.get(school=school,
-                                   f_name=body["f_name"],
-                                   l_name=body["l_name"]))
-
-    match = body["entered_password"] == teacher.password
-
-    return JsonResponse({"password_correct": match})
-
-
-def teacher_exists(request):
-    """
-    requires:
-        {
-            password:
-            "f_name": "Jackson",
-            "l_name": "Breyer",
-            "school_name": "Brandeis"
-        }
-
-    returns:
-        {
-            "teacher_exists": True
-        }
-
-    """
-    school = School.objects.get(name=request.get("school_name"))
-
-    exists = Teacher.objects.filter(f_name=request.get("f_name"),
-                                    l_name=request.get("l_name"),
-                                    school=school).exists()
-
-    return JsonResponse({"teacher_exists": exists})
+def get_request_body(request):
+    body_unicode = request.body.decode('utf-8')
+    return json.loads(body_unicode)
