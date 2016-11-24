@@ -16,12 +16,13 @@ TODO:
 
 """
 Accepts:
-{'username': str,
+{
+ 'username': str,
  'password': str,
  'email': str (optional),
  'firstName': str,
  'lastName': str,
- 'isSuperUser', bool}
+}
 
  returns:
  204
@@ -30,7 +31,29 @@ def create_user(request):
     if request.method != 'POST':
         return HttpResponse(status=405)
     error = Logic().create_user(get_request_body(request))
-    if  error:
+    if isinstance(error, str):
+        return HttpResponse(error, status=500)
+    else:
+        return HttpResponse(status=204)
+
+
+"""
+{
+  "username": "jacksonnnn",
+  "email":  "jbreeyer@practicefusion.com",
+  "password": "guest",
+  "firstName": "Jackson",
+  "lastName": "Breyer",
+  "isSuperUser": false,
+  "school_name": "Home",
+  "school_city": "McLean"
+}
+"""
+def create_teacher(request):
+    if request.method != 'POST':
+        return HttpResponse(status=405)
+    error = Logic().create_teacher(get_request_body(request))
+    if error:
         return HttpResponse(error, status=500)
     else:
         return HttpResponse(status=204)

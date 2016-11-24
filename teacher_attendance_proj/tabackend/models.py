@@ -1,9 +1,10 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class School(models.Model):
     # should be unique on name
-    name = models.CharField(max_length=150)
+    name = models.CharField(max_length=150, primary_key=True)
     city = models.CharField(max_length=150)
 
     # for maps
@@ -13,19 +14,15 @@ class School(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        unique_together = ('name', 'city')
 
-class Teacher(models.Model):
-    # should be unique on (f_name, l_name, school)
-    f_name = models.CharField(max_length=150)
-    l_name = models.CharField(max_length=150)
+class Teacher(User):
     school = models.ForeignKey(School, on_delete=models.CASCADE)
-    password = models.CharField(max_length=150)
 
     def __str__(self):
-        return self.f_name + " " + self.l_name
+        return self.first_name + " " + self.last_name
 
-    def get_full_name(self):
-        return self.f_name + " " + self.l_name
 
 
 class Attendance(models.Model):
