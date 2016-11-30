@@ -1,7 +1,5 @@
 from django.http import HttpResponse, JsonResponse
-from tabackend.models import School, Teacher, Attendance
 from django.template import RequestContext, loader
-from django.utils import timezone
 from .mobile_tools import MobileTools
 from .logic import Logic
 import json
@@ -13,29 +11,6 @@ TODO:
 
 # ===================================================== #
 # WEB API
-
-"""
-Accepts:
-{
- 'username': str,
- 'password': str,
- 'email': str (optional),
- 'firstName': str,
- 'lastName': str,
-}
-
- returns:
- 204
-"""
-def create_user(request):
-    if request.method != 'POST':
-        return HttpResponse(status=405)
-    error = Logic().create_user(get_request_body(request))
-    if isinstance(error, str):
-        return HttpResponse(error, status=500)
-    else:
-        return HttpResponse(status=204)
-
 
 """
 {
@@ -81,95 +56,47 @@ def report(request):
 # ===================================================== #
 # MOBILE API
 
+"""
+{
+    "username": "jbreyer",
+    "password": "guest"
+}
+"""
 def login(request):
-    if not Logic.credentials_valid(get_request_body(request)):
+    request_body = get_request_body(request)
+    username = request_body.get('username')
+    password = request_body.get('password')
+    if not Logic.teacher_credentials_valid(username, password):
         return HttpResponse(status=403)
     return HttpResponse(status=204)
 
 
 """
-returns:
     {
-        "school": [list of teacher names],
-        ...
-    }
-"""
-def get_all_schools_and_teachers(request):
-    response = {school.name: [] for school in School.objects.all()}
-    for teacher in Teacher.objects.all():
-        name = teacher.f_name + " " + teacher.l_name
-        response[teacher.school.name].append(name)
-
-    return (JsonResponse(response))
-
-
-"""
-Requires:
-    {
-        "f_name": "Jackson",
-        "l_name": "Breyer",
-        "school_name": "Brandeis",
-        "near_school": True,
+        "username": "jbreyer"
+        "password": "guest",
+        "latitude": number,
+        "longitude": number,
         "phone_number": 2025551234,
-        "password":
-    }
-
-Returns:
-    {
-        "submission_successful": true
     }
 """
 def submit_attendance(request):
+    if request.method != 'POST':
+        return HttpResponse(status=405)
+    Logic().submit_attendance(get_request_body(request))
+    return HttpResponse(status=204)
 
-    tools = MobileTools()
-    body = tools.get_request_body(request)
-
-    teacher = Teacher.objects.get(f_name=body.get("f_name"),
-                                  l_name=body.get("l_name"),
-                                  school__name=body.get("school_name")
-                                  )
-
-    # create + save the new Attendance object, if reporter hasn't reported today
-    if not tools.teacher_submitted_today(teacher):
-        Attendance.objects.create(
-            date=timezone.now(),
-            near_school=body.get("near_school"),
-            teacher=teacher,
-            phone_number=body.get("phone_number")
-        )
-        return JsonResponse({"submission_successful": True})
-
-    # if the teacher has already checked in today
-    #   see mobile_tools for sanitation policy
-    else:
-        tools.deduplicate_entries(request)
-        return JsonResponse({"submission_successful": True})
-
-
-"""
-requires:
-    {
-        password:
-        school_name: "Brandeis"
-    }
-
-returns:
-    {
-        latitude: 38.933868
-        longitude: -77.177260
-    }
-
-"""
-def get_lat_long(request):
-    school = School.objects.get(name=request.get("school_name"))
-    return JsonResponse(
-        {
-            "latitude": school.latitude,
-            "longitude": school.longitude
-        })
 
 # ===================================================== #
 # HELPER METHODS
+
+# Assumes each element from the request body is non null and loaded 
+# into model via request_body.get('keyName')
+def request_is_valid(model):
+    for key in model:
+        if model.get(key) is None:
+            return False
+    return True
 
 def get_request_body(request):
     body_unicode = request.body.decode('utf-8')

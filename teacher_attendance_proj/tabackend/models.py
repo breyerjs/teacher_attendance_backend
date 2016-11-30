@@ -26,10 +26,10 @@ class Teacher(User):
 
 
 class Attendance(models.Model):
-    date = models.DateTimeField('date')
+    date_submitted = models.DateTimeField('date')
     near_school = models.BooleanField()
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
-    phone_number = models.IntegerField()
+    phone_number = models.CharField(max_length=15)
 
     def __str__(self):
         if self.near_school:
