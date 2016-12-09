@@ -1,4 +1,5 @@
 from .data_access import DataAccess
+from geopy.distance import vincenty
 """
 This file holds the business logic for the application.
 
@@ -10,6 +11,7 @@ class Logic:
         self.SCHOOL_DOES_NOT_EXIST_ERROR = "No school matches that name and city"
         self.CREDENTIALS_INVALID_ERROR = "The credentials provided are incorrect"
 
+    # private method
     def create_user(self, request_body):
         if self.data_access.get_user_by_username(request_body.get('username')) is not None:
             return self.USER_EXISTS_ERROR
@@ -28,8 +30,15 @@ class Logic:
         self.data_access.create_teacher(user=user, school=school)
         return None
 
-    def submit_attendance(self, username, password, phone_number, latitude, longitude):
-        if not self.credentials_valid(username, password):
+    def submit_attendance(self, request):
+        username = request.get('username')
+        password = request.get('password')
+        latitude = request.get('latitude')
+        longitude = request.get('longitude')
+        phone_number = request.get('phone_number')
+
+
+        if not self.teacher_credentials_valid(username, password):
             return self.CREDENTIALS_INVALID_ERROR
         teacher = self.data_access.get_teacher_by_username(username)
         near_school = self.is_near_school(latitude, longitude, teacher.school)
@@ -47,9 +56,11 @@ class Logic:
         else:
             return
 
-    # TODO: Implement
+    # 'Near' is defined as 'within a mile of'
     def is_near_school(self, latitude, longitude, school):
-        return True
+        school_loction = (school.latitude, school.longitude)
+        teacher_location = (latitude, longitude)
+        return vincenty(teacher_location, school_loction).miles <= 1
 
     def teacher_credentials_valid(self, username, password):
         user = self.data_access.get_teacher_by_username(username)
