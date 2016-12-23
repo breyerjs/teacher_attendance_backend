@@ -37,7 +37,6 @@ class Logic:
         longitude = request.get('longitude')
         phone_number = request.get('phone_number')
 
-
         if not self.teacher_credentials_valid(username, password):
             return self.CREDENTIALS_INVALID_ERROR
         teacher = self.data_access.get_teacher_by_username(username)
