@@ -81,10 +81,16 @@ def login(request):
     }
 """
 def submit_attendance(request):
+    logic = Logic()
     if request.method != 'POST':
         return HttpResponse(status=405)
-    Logic().submit_attendance(get_request_body(request))
-    return HttpResponse(status=204)
+    result = logic.submit_attendance(get_request_body(request))
+    if result == logic.CREDENTIALS_INVALID_ERROR:
+        return HttpResponse(status=401)
+    elif result == logic.ALREADY_SIGNED_IN_ERROR:
+        return HttpResponse(status=400)
+    else:
+        return HttpResponse(status=204)
 
 
 # ===================================================== #

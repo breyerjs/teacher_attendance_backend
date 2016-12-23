@@ -12,6 +12,7 @@ class TestSubmissions(TestCase):
     def setUp(self):
         self.USERNAME = "Alobar"
         self.PASSWORD = "panpanpan"
+        self.NOT_THE_PASSWORD = "wam bam kablam"
 
         self.create_teacher_request_body = {
             'username': self.USERNAME,
@@ -98,7 +99,7 @@ class TestSubmissions(TestCase):
         request = self.factory.post("/submit_attendance", data=body, format='json')
         response = submit_attendance(request)
 
-        self.assertEquals(response.status_code, 204) 
+        self.assertEquals(response.status_code, 400) 
         self.assertEqual(1, Attendance.objects.filter(teacher__username=self.USERNAME).count())
 
     def test_submit_attendance_near_school_then_not_near_school_saves_first_only(self):
@@ -112,7 +113,7 @@ class TestSubmissions(TestCase):
         body = self.not_near_school_request_body
         request = self.factory.post("/submit_attendance", data=body, format='json')
         response = submit_attendance(request)
-        self.assertEquals(response.status_code, 204)         
+        self.assertEquals(response.status_code, 400)         
         attendances = Attendance.objects.filter(teacher__username=self.USERNAME)
 
         self.assertEqual(1, attendances.count())
@@ -129,6 +130,14 @@ class TestSubmissions(TestCase):
         body = self.not_near_school_request_body
         request = self.factory.post("/submit_attendance", data=body, format='json')
         response = submit_attendance(request)
+        
         self.assertEquals(response.status_code, 204)         
         self.assertEquals(1, Attendance.objects.filter(teacher__username=self.USERNAME).count())
-    
+
+    def test_submit_incorrect_credentials_returns_401(self):
+        body = self.near_school_request_body
+        body['password'] = self.NOT_THE_PASSWORD
+        request = self.factory.post("/submit_attendance", data=body, format='json')
+        response = submit_attendance(request)
+        
+        self.assertEquals(response.status_code, 401) 
