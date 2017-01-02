@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
 from .models import Teacher, School, Attendance
 from datetime import datetime
+from django.utils import timezone
+
 
 """
 This file holds the logic for accessing the database.
@@ -28,7 +30,7 @@ class DataAccess:
     def create_attendance(self, teacher, near_school, phone_number):
         return Attendance.objects.create(teacher=teacher,
                                     near_school=near_school,
-                                    date_submitted=datetime.utcnow(),
+                                    date_submitted=timezone.now(),
                                     phone_number=phone_number)
 
     def get_user_by_username(self, username):
@@ -51,6 +53,6 @@ class DataAccess:
         return school.first()
 
     def get_check_ins_today(self, teacher):
-        today = datetime.utcnow().date()
+        today = timezone.now().date()
         return Attendance.objects.filter(teacher__username=teacher.username,
                                         date_submitted__date=today)

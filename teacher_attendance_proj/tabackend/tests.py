@@ -56,7 +56,6 @@ class TestSubmissions(TestCase):
         request = self.factory.post("/submit_attendance", data=body, format='json')
         response = submit_attendance(request)
         attendance = Attendance.objects.filter(teacher__username=self.USERNAME).first()
-
         self.assertTrue(attendance.near_school)
         self.assertEquals(response.status_code, 204)
 
@@ -65,7 +64,6 @@ class TestSubmissions(TestCase):
         request = self.factory.post("/submit_attendance", data=body, format='json')
         response = submit_attendance(request)
         attendance = Attendance.objects.filter(teacher__username=self.USERNAME).first()
-
         self.assertFalse(attendance.near_school)
         self.assertEquals(response.status_code, 204)        
 
@@ -74,7 +72,6 @@ class TestSubmissions(TestCase):
         body = self.not_near_school_request_body
         request = self.factory.post("/submit_attendance", data=body, format='json')
         response = submit_attendance(request)
-
         self.assertEquals(response.status_code, 204)        
 
         # near school
@@ -83,7 +80,6 @@ class TestSubmissions(TestCase):
         response = submit_attendance(request)
         self.assertEquals(response.status_code, 204)        
         attendances = Attendance.objects.filter(teacher__username=self.USERNAME)
-
         self.assertEqual(1, attendances.filter(near_school=True).count())
         self.assertEqual(1, attendances.filter(near_school=False).count())
 
@@ -98,7 +94,6 @@ class TestSubmissions(TestCase):
         body = self.near_school_request_body
         request = self.factory.post("/submit_attendance", data=body, format='json')
         response = submit_attendance(request)
-
         self.assertEquals(response.status_code, 400) 
         self.assertEqual(1, Attendance.objects.filter(teacher__username=self.USERNAME).count())
 
@@ -115,7 +110,6 @@ class TestSubmissions(TestCase):
         response = submit_attendance(request)
         self.assertEquals(response.status_code, 400)         
         attendances = Attendance.objects.filter(teacher__username=self.USERNAME)
-
         self.assertEqual(1, attendances.count())
         self.assertTrue(attendances.first().near_school)
 
@@ -130,7 +124,6 @@ class TestSubmissions(TestCase):
         body = self.not_near_school_request_body
         request = self.factory.post("/submit_attendance", data=body, format='json')
         response = submit_attendance(request)
-        
         self.assertEquals(response.status_code, 204)         
         self.assertEquals(1, Attendance.objects.filter(teacher__username=self.USERNAME).count())
 
@@ -139,5 +132,4 @@ class TestSubmissions(TestCase):
         body['password'] = self.NOT_THE_PASSWORD
         request = self.factory.post("/submit_attendance", data=body, format='json')
         response = submit_attendance(request)
-        
         self.assertEquals(response.status_code, 401) 
