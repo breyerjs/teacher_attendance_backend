@@ -15,14 +15,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='school',
             name='name',
-            field=models.CharField(max_length=150, primary_key=True, serialize=False),
-        ),
-        migrations.RemoveField(
-            model_name='school',
-            name='id',
-        ),
-        migrations.AlterUniqueTogether(
-            name='school',
-            unique_together=set([('name', 'city')]),
+            field=models.CharField(max_length=150, serialize=False),
         ),
     ]

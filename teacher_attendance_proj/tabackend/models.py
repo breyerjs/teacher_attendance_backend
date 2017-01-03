@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 class School(models.Model):
     # should be unique on name
-    name = models.CharField(max_length=150, primary_key=True)
+    name = models.CharField(max_length=150)
     city = models.CharField(max_length=150)
 
     # for maps
