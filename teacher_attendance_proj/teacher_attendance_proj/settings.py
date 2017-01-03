@@ -78,6 +78,9 @@ WSGI_APPLICATION = 'teacher_attendance_proj.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
+# See
+#   - https://simpleisbetterthancomplex.com/tutorial/2016/08/09/how-to-deploy-django-applications-on-heroku.html
+#   - https://pypi.python.org/pypi/python-decouple
 
 DATABASES = {
     # 'default': {
