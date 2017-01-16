@@ -1,0 +1,21 @@
+[
+    {
+          "username": "jacksonnnn",
+          "email":  "jbreeyer@practicefusion.com",
+          "password": "guest",
+          "firstName": "Jackson",
+          "lastName": "Breyer",
+          "school_name": "Embarcadero",
+          "school_city": "San Francisco"
+    },
+
+    {
+          "username": "rach",
+          "email":  "rach@practicefusion.com",
+          "password": "viggo",
+          "firstName": "Rachelle",
+          "lastName": "Sarms",
+          "school_name": "Embarcadero",
+          "school_city": "San Francisco"
+    }
+]

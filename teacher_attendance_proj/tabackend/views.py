@@ -13,39 +13,17 @@ TODO:
 # WEB API
 
 """
-{
-  "username": "jacksonnnn",
-  "email":  "jbreeyer@practicefusion.com",
-  "password": "guest",
-  "firstName": "Jackson",
-  "lastName": "Breyer",
-  "isSuperUser": false,
-  "school_name": "Home",
-  "school_city": "McLean"
-}
-"""
-def create_teacher(request):
-    if request.method != 'POST':
-        return HttpResponse(status=405)
-    error = Logic().create_teacher(get_request_body(request))
-    if error:
-        return HttpResponse(error, status=500)
-    else:
-        return HttpResponse(status=204)
-
-
-    """
-    TODO.
-    Passes in:
-        all_schools{
-            "Brandeis": {
-                "Jackson Breyer": 45
-            }
+TODO.
+Passes in:
+    all_schools{
+        "Brandeis": {
+            "Jackson Breyer": 45
         }
-    ...where the main dict maps the school's name to an inner dict.
-        The inner dict maps each teacher name to the number of times
-        that teacher has been reported missing.
-    """
+    }
+...where the main dict maps the school's name to an inner dict.
+    The inner dict maps each teacher name to the number of times
+    that teacher has been reported missing.
+"""
 def report(request):
     tools = MobileTools()
     attendance = tools.get_all_teachers_num_times_present()

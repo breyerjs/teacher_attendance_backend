@@ -3,7 +3,6 @@ from .models import Teacher, School, Attendance
 from datetime import datetime
 from django.utils import timezone
 
-
 """
 This file holds the logic for accessing the database.
 It's essentially a set of stored procedures but wtiten with

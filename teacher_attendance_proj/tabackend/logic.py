@@ -13,18 +13,18 @@ class Logic:
         self.ALREADY_SIGNED_IN_ERROR = "The user has already signed in"
 
     # private method...used because of a funky model inheritence
-    def _create_user(self, request_body):
-        if self.data_access.get_user_by_username(request_body.get('username')) is not None:
+    def _create_user(self, teacher_blob):
+        if self.data_access.get_user_by_username(teacher_blob.get('username')) is not None:
             return self.USER_EXISTS_ERROR
-        return self.data_access.create_user(request_body)
+        return self.data_access.create_user(teacher_blob)
 
-    def create_teacher(self, request_body):
-        user = self._create_user(request_body)
+    def create_teacher(self, teacher_blob):
+        user = self._create_user(teacher_blob)
         if user == self.USER_EXISTS_ERROR:
             return user
         # get school
-        school = self.data_access.get_school(name=request_body.get('school_name'), 
-                                            city=request_body.get('school_city'))
+        school = self.data_access.get_school(name=teacher_blob.get('school_name'), 
+                                            city=teacher_blob.get('school_city'))
         if school is None:
             return self.SCHOOL_DOES_NOT_EXIST_ERROR
 

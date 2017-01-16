@@ -3,9 +3,8 @@ from django.test import TestCase
 from rest_framework.test import APIRequestFactory
 from tabackend.models import School, Attendance
 from tabackend.views import submit_attendance
+from tabackend.load_teachers import load_teachers
 from .logic import Logic
-
-
 
 class TestSubmissions(TestCase):
 
@@ -50,6 +49,10 @@ class TestSubmissions(TestCase):
             "longitude": self.location_not_near_school[1],
             "phone_number": '2021234567'
         }
+
+    def test_can_load_teachers_with_script(self):
+        test_load_path = "tabackend/teacher_loads/test_load.json"
+        load_teachers(test_load_path)
 
     def test_submit_attendance_near_school_first_time_saves(self):
         body = self.near_school_request_body
